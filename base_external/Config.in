@@ -1,2 +1,7 @@
-source "$BR2_EXTERNAL_project_base_PATH/package/aesd-assignments/Config.in"
+menu "External packages"
+
+source "/home/vboxuser/assignment-4-saidsalameh/base_external/package/aesd-assignments/Config.in"
+
+
+endmenu
 
