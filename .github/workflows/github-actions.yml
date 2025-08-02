@@ -13,12 +13,21 @@ jobs:
     timeout-minutes: 120
 
     steps:
+      # Initialize submodules manually before checkout
+      - name: Initialize submodules
+        run: |
+          echo "Initializing submodules"
+          git submodule init
+          git submodule update --recursive
+
+      # Checkout the repository with submodules
       - name: Checkout repository with submodules
         uses: actions/checkout@v2
         with:
           submodules: recursive
           fetch-depth: 0
 
+      # Debugging .gitmodules content
       - name: Dump .gitmodules content for debugging (with limited output)
         run: |
           echo "Working dir: $(pwd)"
@@ -31,16 +40,19 @@ jobs:
             echo ".gitmodules file not found"
           fi
 
+      # SSH agent setup
       - uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      # Run full test
       - name: Run full test
         env:
           GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
           FORCE_UNSAFE_CONFIGURE: "1"
         run: ./full-test.sh
 
+      # Cleanup
       - name: Cleanup
         if: always()
         run: ssh-add -D
