@@ -1,5 +1,4 @@
 name: assignment-test
-
 on:
   push:
     tags-ignore:
@@ -19,6 +18,18 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
+
+      - name: Dump .gitmodules content for debugging (with limited output)
+        run: |
+          echo "Working dir: $(pwd)"
+          echo "Listing the first few files:"
+          ls -1 | head -n 20  # Limit output to first 20 files in the directory
+          if [ -f .gitmodules ]; then
+            echo ".gitmodules contents:"
+            cat .gitmodules
+          else
+            echo ".gitmodules file not found"
+          fi
 
       - uses: webfactory/ssh-agent@v0.5.3
         with:
