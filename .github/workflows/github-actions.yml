@@ -1,59 +1,27 @@
 name: assignment-test
 on:
-  push:
-    tags-ignore:
-      - '*'
-    branches:
-      - '*'
-
+    push:
+        tags-ignore:
+            - '*'
+        branches:
+            - '*'
 jobs:
-  full-test:
-    container: cuaesd/aesd-autotest:24-assignment4-buildroot
-    runs-on: self-hosted
-    timeout-minutes: 120
-
-    steps:
-      # Initialize submodules manually before checkout
-      - name: Initialize submodules
-        run: |
-          echo "Initializing submodules"
-          git submodule init
-          git submodule update --recursive
-
-      # Checkout the repository with submodules
-      - name: Checkout repository with submodules
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
-          fetch-depth: 0
-
-      # Debugging .gitmodules content
-      - name: Dump .gitmodules content for debugging (with limited output)
-        run: |
-          echo "Working dir: $(pwd)"
-          echo "Listing the first few files:"
-          ls -1 | head -n 20  # Limit output to first 20 files in the directory
-          if [ -f .gitmodules ]; then
-            echo ".gitmodules contents:"
-            cat .gitmodules
-          else
-            echo ".gitmodules file not found"
-          fi
-
-      # SSH agent setup
-      - uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      # Run full test
-      - name: Run full test
-        env:
-          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
-          FORCE_UNSAFE_CONFIGURE: "1"
-        run: ./full-test.sh
-
-      # Cleanup
-      - name: Cleanup
-        if: always()
-        run: ssh-add -D
-
+    full-test:
+        container: cuaesd/aesd-autotest:24-assignment5-buildroot
+        runs-on: self-hosted
+        timeout-minutes: 120
+        steps:
+          - uses: actions/checkout@v2
+          - name: Checkout submodules
+            run: git submodule update --init --recursive
+          - uses: webfactory/ssh-agent@v0.5.3
+            with:
+                ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          - name: Run full test
+            env:
+              GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
+            run: ./full-test.sh
+          - name: Cleanup
+            if: always()
+            run: |
+              ssh-add -D
