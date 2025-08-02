@@ -7,12 +7,15 @@ on:
             - '*'
 jobs:
     full-test:
-        container: cuaesd/aesd-autotest:24-assignment5-buildroot
+        container: cuaesd/aesd-autotest:24-assignment4-buildroot
         runs-on: self-hosted
         timeout-minutes: 120
         steps:
           - uses: actions/checkout@v2
           - name: Checkout submodules
+            with:
+                submodules: recursive
+                fetch-depth: 0
             run: git submodule update --init --recursive
           - uses: webfactory/ssh-agent@v0.5.3
             with:
